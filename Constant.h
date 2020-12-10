@@ -4,10 +4,6 @@
 #define MAX_LINE_SIZE 128
 #define MAX_LABEL_SIZE 32
 #define INITIAL_LABEL_AMOUNT 32
-#define INITIAL_MEMORY_SIZE 4
-#define REGISTERS_AMOUNT 16
-
-#define OUTPUT_FILE "Output.txt"
 
 #define AR 0x10
 #define A 0xd1
@@ -34,4 +30,3 @@
 
 #define TRUE 1
 #define FALSE 0
-#define DEFAULT_CELL_VALUE NULL
