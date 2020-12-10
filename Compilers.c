@@ -2,16 +2,12 @@
 #include<stdio.h>
 #include"Constant.h"
 #include<string.h>
-
+#include"Memory.h"
 
 void CompilePsaCode(char* filename) 
 {
-	FILE* inputFile;
-
 	MakeLabels(filename);
-	
-	fopen_s(&inputFile, filename, "r");
-
+	LoadCommands(filename);
 
 }
 

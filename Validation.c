@@ -3,6 +3,7 @@
 #include<string.h>
 
 #include "Constant.h"
+#include"Enums.h"
 
 void CheckInputPathExistence(int argc, char* argv[], char* inputPath)
 {
@@ -35,11 +36,20 @@ void CheckIfFileIsPossibleToOpen(char* inputPath)
 	}
 }
 
-int IsPsaCodeFile(char* codeOption)
+Bool IsPsaCodeFile(char* codeOption)
 {
 	if (strcmp(codeOption, "psa_code") == 0)
 	{
-		return TRUE;
+		return True;
 	}
-	return FALSE;
+	return False;
+}
+
+Bool IsNumber(char c)
+{
+	if (c >= '0' && c <= '9')
+	{
+		return True;
+	}
+	return False;
 }

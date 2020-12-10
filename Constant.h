@@ -28,5 +28,4 @@
 #define DC 0xF4
 #define DS 0xF5
 
-#define TRUE 1
-#define FALSE 0
+#define INITIAL_MEMORY_SIZE 4

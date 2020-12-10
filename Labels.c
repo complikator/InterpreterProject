@@ -40,7 +40,7 @@ void GetLabelFromCommand(char* line, int* displacement, Section sectionType)
 	return;
 }
 
-void UpdateDisplacement(char* line, int* displacement, int labelExist, Section	sectionType)
+void UpdateDisplacement(char* line, int* displacement, Bool labelExist, Section	sectionType)
 {
 	char* found = NULL;
 	char* token = NULL;
@@ -50,7 +50,7 @@ void UpdateDisplacement(char* line, int* displacement, int labelExist, Section	s
 
 	if (sectionType == Data)
 	{
-		if (labelExist == TRUE)
+		if (labelExist == True)
 		{
 			found = strtok_s(line, " \t\r", &token);
 			found = strtok_s(NULL, " \t\r", &token);
@@ -75,7 +75,7 @@ void UpdateDisplacement(char* line, int* displacement, int labelExist, Section	s
 	}
 	else
 	{
-		if (labelExist == TRUE)
+		if (labelExist == True)
 		{
 			found = strtok_s(line, " \t\r", &token);
 			found = strtok_s(NULL, " \t\r", &token);
@@ -119,19 +119,19 @@ void MakeLabels(char* filename)
 	{
 		DeleteCommentFromCommand(line);
 
-		if (StringIsNullOrEmpty(line) == TRUE)
+		if (StringIsNullOrEmpty(line) == True)
 		{
 			break;
 		}
 
-		if (LabelInCommandExist(line) == TRUE)
+		if (LabelInCommandExist(line) == True)
 		{
 			GetLabelFromCommand(line, &actualDisplacement, Data);
-			UpdateDisplacement(line, &actualDisplacement, TRUE, Data);
+			UpdateDisplacement(line, &actualDisplacement, True, Data);
 			continue;
 		}
 
-		UpdateDisplacement(line, &actualDisplacement, FALSE, Data);
+		UpdateDisplacement(line, &actualDisplacement, False, Data);
 
 	}
 	actualDisplacement = 0;
@@ -139,18 +139,18 @@ void MakeLabels(char* filename)
 	// goes through order section to find labels
 	while (fgets(line, MAX_LINE_SIZE, input) != NULL)
 	{
-		if (StringIsNullOrEmpty(line) == TRUE)
+		if (StringIsNullOrEmpty(line) == True)
 		{
 			break;
 		}
 
-		if (LabelInCommandExist(line) == TRUE)
+		if (LabelInCommandExist(line) == True)
 		{
 			GetLabelFromCommand(line, &actualDisplacement, Order);
-			UpdateDisplacement(line, &actualDisplacement, TRUE, Order);
+			UpdateDisplacement(line, &actualDisplacement, True, Order);
 			continue;
 		}
-		UpdateDisplacement(line, &actualDisplacement, FALSE, Order);
+		UpdateDisplacement(line, &actualDisplacement, False, Order);
 	}
 
 	fclose(input);
@@ -177,4 +177,15 @@ void AddLabel(Label* label)
 	ActualLabels.Labels[ActualLabels.Total++] = label;
 }
 
+Label* GetLabelByName(char* name)
+{
+	int i = 0;
 
+	for (i = 0; i < ActualLabels.Total; ++i)
+	{
+		if (strcmp(name, (ActualLabels.Labels[i])->LabelName) == 0)
+		{
+			return ActualLabels.Labels[i];
+		}
+	}
+}

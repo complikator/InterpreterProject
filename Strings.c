@@ -1,6 +1,6 @@
 #include<string.h>
 #include"Constant.h"
-
+#include"Enums.h"
 
 void DeleteCommentFromCommand(char* command)
 {
@@ -12,7 +12,7 @@ void DeleteCommentFromCommand(char* command)
 	return;
 }
 
-int StringIsNullOrEmpty(char* string)
+Bool StringIsNullOrEmpty(char* string)
 {
 	char* helper = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
 	char* check = NULL;
@@ -24,18 +24,18 @@ int StringIsNullOrEmpty(char* string)
 
 	if (check == NULL)
 	{
-		return TRUE;
+		return True;
 	}
 
-	return FALSE;
+	return False;
 }
 
-int LabelInCommandExist(char* command)
+Bool LabelInCommandExist(char* command)
 {
 	if (command[0] != ' ' && command[0] != '/')
 	{
-		return TRUE;
+		return True;
 	}
 
-	return FALSE;
+	return False;
 }

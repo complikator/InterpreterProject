@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include "Constant.h"
 #include "Validation.h"
+#include"Enums.h"
 
 int main(int argc, char* argv[])
 {
@@ -13,7 +14,7 @@ int main(int argc, char* argv[])
 	CheckIfFileIsPossibleToOpen(InputPath);
 	argv[2] = "psa_code";
 	// check if input file is psa or machine code
-	if (IsPsaCodeFile(argv[2]) == TRUE)
+	if (IsPsaCodeFile(argv[2]) == True)
 	{
 		CompilePsaCode(InputPath);
 	}

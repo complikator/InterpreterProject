@@ -27,4 +27,4 @@ void InitLabels();
 
 void AddLabel(Label*);
 Label* MakeLabel(char*, int*, int);
-Label* GetLabelByName(char[]);
+Label* GetLabelByName(char*);

@@ -4,6 +4,8 @@
 #include<string.h>
 #include<stdlib.h>
 #include"HelperStructs.h"
+#include"Validation.h"
+#include"Labels.h"
 
 int GetDSVariableAmount(char* preparsedCommand, char** token)
 {
@@ -76,5 +78,62 @@ DcParameters* GetDCParameters(char* preparsedCommand, char** token)
 		dcParams->Value = value;
 
 		return dcParams;
+	}
+}
+
+void* GetCommandParameters(CommandType type, char* found, char** token)
+{
+	char* result = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
+	R2RCommandParameters* r2rParams = NULL;
+	R2MCommandParameters* r2mParams = NULL;
+	MOCommandParameters* moParams = NULL;
+	Label* label = NULL;
+
+	*result = '\0';
+	found = strtok_s(NULL, " \r\t\n", token);
+
+	while (found != NULL)
+	{
+		strcat_s(result, MAX_LINE_SIZE, found);
+
+		found = strtok_s(NULL, " \r\t\n", token);
+	}
+	switch (type)
+	{
+	case Register2Register:
+		r2rParams = (R2RCommandParameters*)malloc(sizeof(R2RCommandParameters));
+		found = strtok_s(result, ",", token);
+		r2rParams->FirstRegister = atoi(found);
+		found = strtok_s(NULL, " \r\t\n", token);
+		r2rParams->SecondRegister = atoi(found);
+		return r2rParams;
+
+	case Register2Memory:
+		found = strtok_s(result, ",", token);
+		r2mParams = (R2MCommandParameters*)malloc(sizeof(R2MCommandParameters));
+		r2mParams->Register = atoi(found);
+
+		found = strtok_s(NULL, "()", token);
+		r2mParams->TargetDisplacement = atoi(found);
+		found = strtok_s(NULL, "()", token);
+		r2mParams->TargetRegister = atoi(found);
+		return r2mParams;
+
+	case MemoryOnly:
+		if (IsNumber(*result) == False)
+		{
+			label = GetLabelByName(result);
+
+			moParams->TargetDisplacement = label->Displacement;
+			moParams->TargetRegister = label->Register;
+
+			return moParams;
+		}
+		found = strtok_s(result, "()", token);
+		moParams->TargetDisplacement = atoi(found);
+		found - strtok_s(NULL, "()", token);
+		moParams->TargetRegister = atoi(found);
+		return moParams;
+
 	}
 }
