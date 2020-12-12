@@ -1,7 +1,10 @@
 #pragma once
+#include"Enums.h"
 
 void DeleteCommentFromCommand(char*);
 
-int StringIsNullOrEmpty(char*);
+Bool StringIsNullOrEmpty(char*);
 
 int LabelInCommandExist(char*);
+
+char* GenerateOutputPath(char*);

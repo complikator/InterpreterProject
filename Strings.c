@@ -39,3 +39,16 @@ Bool LabelInCommandExist(char* command)
 
 	return False;
 }
+
+char* GenerateOutputPath(char* filename)
+{
+	char* outputPath = malloc(sizeof(char) * MAX_PATH_SIZE);
+	char* helper = malloc(sizeof(char) * MAX_PATH_SIZE);
+
+	strcpy_s(outputPath, MAX_PATH_SIZE, filename);
+	helper = strrchr(outputPath, '.');
+	*helper = '\0';
+	strcat_s(outputPath, MAX_PATH_SIZE, "_out.txt");
+	
+	return outputPath;
+}

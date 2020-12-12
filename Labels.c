@@ -53,6 +53,7 @@ void UpdateDisplacement(char* line, int* displacement, Bool labelExist, Section	
 		if (labelExist == True)
 		{
 			found = strtok_s(line, " \t\r", &token);
+
 			found = strtok_s(NULL, " \t\r", &token);
 		}
 		else
@@ -78,6 +79,12 @@ void UpdateDisplacement(char* line, int* displacement, Bool labelExist, Section	
 		if (labelExist == True)
 		{
 			found = strtok_s(line, " \t\r", &token);
+
+			if (strcmp(found, "KONIEC") == 0)
+			{
+				return;
+			}
+
 			found = strtok_s(NULL, " \t\r", &token);
 		}
 		else
@@ -188,4 +195,6 @@ Label* GetLabelByName(char* name)
 			return ActualLabels.Labels[i];
 		}
 	}
+
+	return NULL;
 }

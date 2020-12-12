@@ -6,6 +6,7 @@
 #include<string.h>
 #include"Memory.h"
 #include"HelperStructs.h"
+#include"Labels.h"
 
 void InitMemory()
 {
@@ -24,7 +25,7 @@ void InitMemory()
 
 void ResizeCompilerMemory(int capacity)
 {
-	MemoryCell** cells = realloc(CompilerMemory.ProgramData, capacity);
+	MemoryCell** cells = realloc(CompilerMemory.ProgramData, sizeof(MemoryCell*)*capacity);
 
 	if (cells)
 	{
@@ -32,7 +33,6 @@ void ResizeCompilerMemory(int capacity)
 		CompilerMemory.DataSectionInfo->Capacity = capacity;
 	}
 }
-
 
 MemoryCell* MakeMemoryCell(int value, Bool isActive)
 {
@@ -44,18 +44,23 @@ MemoryCell* MakeMemoryCell(int value, Bool isActive)
 }
 
 void AddCellsToMemory(int amount, Bool isActive, int value)
-{
-	while (amount--)
 	{
-		if (CompilerMemory.DataSectionInfo->Capacity = CompilerMemory.DataSectionInfo->Total)
+	while (amount > 0)
+	{
+		if (CompilerMemory.DataSectionInfo->Capacity == CompilerMemory.DataSectionInfo->Total)
 		{
 			ResizeCompilerMemory(CompilerMemory.DataSectionInfo->Capacity * 2);
 		}
+		printf(">>\n%p\n", CompilerMemory.ProgramData[2]);
 
-		CompilerMemory.ProgramData[CompilerMemory.DataSectionInfo->Total++] = MakeMemoryCell(value, isActive);
+		CompilerMemory.ProgramData[CompilerMemory.DataSectionInfo->Total] = MakeMemoryCell(value, isActive);
+		printf("%p\n", CompilerMemory.ProgramData[CompilerMemory.DataSectionInfo->Total]);
+		CompilerMemory.DataSectionInfo->Total++;
+
+		amount--;
 	}
+	return;
 }
-
 
 void CreateProgramMemory(FILE* input)
 {
@@ -67,88 +72,9 @@ void CreateProgramMemory(FILE* input)
 
 	while (fgets(line, MAX_LINE_SIZE, input) != NULL)
 	{
-		DeleteCommentFromCommand(line);
-
-		if (StringIsNullOrEmpty(line) == True)
-		{
-			break;
-		}
-
-		if (LabelInCommandExist(line) == True)
-		{
-			found = strtok_s(line, MAX_LINE_SIZE, &token);
-			found = strtok_s(NULL, MAX_LINE_SIZE, &token);
-		}
-		else
-		{
-			found = strtok_s(line, MAX_LINE_SIZE, &token);
-		}
-
-		if (strcmp(found, "DS") == 0)
-		{
-			amount = GetDSVariableAmount(found, &token);
-			AddCellsToMemory(amount, False, 0);
-		}
-		else
-		{
-			dcParams = GetDCParameters(found, &token);
-
-			AddCellssToMemory(dcParams->Amount, True, dcParams->Value);
-		}
-	}
-
-	fclose(input);
-}
-
-Command* MakeCommand(int code, CommandType commandType, int firstRegister, int secondRegister, int targetRegister, int targetDisplacement)
-{
-	Command* newCommand = (Command*)malloc(sizeof(Command));
-
-	newCommand->Code = code;
-	newCommand->commandType = commandType;
-	newCommand->FirstRegister = firstRegister;
-	newCommand->SecondRegister = secondRegister;
-	newCommand->TargetRegister = targetRegister;
-	newCommand->TargetDisplacement = targetDisplacement;
-
-	return newCommand;
-}
-
-void ResizeCommandsCollection(int capacity)
-{
-	Command** commands = realloc(CompilerMemory.Commands, capacity);
-
-	if (commands)
-	{
-		CompilerMemory.Commands = commands;
-		CompilerMemory.CommandsInfo->Capacity = capacity;
-	}
-}
-
-void AddCommand(int code, CommandType commandType, int firstRegister, int secondRegister, int targetRegister, int targetDisplacement)
-{
-	if (CompilerMemory.CommandsInfo->Capacity = CompilerMemory.CommandsInfo->Total)
-	{
-		ResizeCommandsCollection(CompilerMemory.CommandsInfo->Capacity * 2);
-	}
-
-	CompilerMemory.Commands[CompilerMemory.CommandsInfo->Total++] = MakeCommand(code, commandType, firstRegister, secondRegister, targetRegister, targetDisplacement);
-}
-
-
-void CreateCommands(FILE* input)
-{
-	char line[MAX_LINE_SIZE];
-	char* found = NULL;
-	char* token = NULL;
-	char* charToCompare = NULL;
-	R2RCommandParameters* r2rParams = NULL;
-	R2MCommandParameters* r2mParams = NULL;
-	MOCommandParameters* moParams = NULL;
-	int code;
-
-	while (fgets(line, MAX_LINE_SIZE, input) != NULL)
-	{
+		
+			printf("\n%p\n", CompilerMemory.ProgramData[2]);
+		
 		DeleteCommentFromCommand(line);
 
 		if (StringIsNullOrEmpty(line) == True)
@@ -166,6 +92,94 @@ void CreateCommands(FILE* input)
 			found = strtok_s(line, " \t\r", &token);
 		}
 
+		if (strcmp(found, "DS") == 0)
+		{
+			amount = GetDSVariableAmount(found, &token);
+			AddCellsToMemory(amount, False, 0);
+		}
+		else
+		{
+			dcParams = GetDCParameters(found, &token);
+
+			AddCellsToMemory(dcParams->Amount, True, dcParams->Value);
+		}
+	}
+}
+
+Command* MakeCommand(int code, CommandType commandType, int firstRegister, int secondRegister, int targetRegister, int targetDisplacement, int commandDisplacement)
+{
+	Command* newCommand = (Command*)malloc(sizeof(Command));
+
+	newCommand->Code = code;
+	newCommand->commandType = commandType;
+	newCommand->FirstRegister = firstRegister;
+	newCommand->SecondRegister = secondRegister;
+	newCommand->TargetRegister = targetRegister;
+	newCommand->TargetDisplacement = targetDisplacement;
+	newCommand->CommandDisplacement = commandDisplacement;
+
+	return newCommand;
+}
+
+void ResizeCommandsCollection(int capacity)
+{
+	Command** commands = realloc(CompilerMemory.Commands, sizeof(Command*)*capacity);
+
+	if (commands)
+	{
+		CompilerMemory.Commands = commands;
+		CompilerMemory.CommandsInfo->Capacity = capacity;
+	}
+}
+
+void AddCommand(int code, CommandType commandType, int firstRegister, int secondRegister, int targetRegister, int targetDisplacement, int commandDisplacement)
+{
+	if (CompilerMemory.CommandsInfo->Capacity == CompilerMemory.CommandsInfo->Total)
+	{
+		ResizeCommandsCollection(CompilerMemory.CommandsInfo->Capacity * 2);
+	}
+
+	CompilerMemory.Commands[CompilerMemory.CommandsInfo->Total++] = MakeCommand(code, commandType, firstRegister, secondRegister, targetRegister, targetDisplacement, commandDisplacement);
+}
+
+void CreateCommands(FILE* input)
+{
+	char line[MAX_LINE_SIZE];
+	char* found = NULL;
+	char* token = NULL;
+	char* charToCompare = NULL;
+	R2RCommandParameters* r2rParams = NULL;
+	R2MCommandParameters* r2mParams = NULL;
+	MOCommandParameters* moParams = NULL;
+	int code;
+	int actualDisplacement = 0;
+
+	while (fgets(line, MAX_LINE_SIZE, input) != NULL)
+	{
+		DeleteCommentFromCommand(line);
+
+		if (StringIsNullOrEmpty(line) == True)
+		{
+			break;
+		}
+
+		if (LabelInCommandExist(line) == True)
+		{
+			found = strtok_s(line, " \t\r", &token);
+
+			if (strcmp(found, "KONIEC") == 0)
+			{
+				AddCommand(KILL, MemoryOnly, 0, 0, 0, 0, GetLabelByName("KONIEC")->Displacement);
+				return;
+			}
+
+			found = strtok_s(NULL, " \t\r", &token);
+		}
+		else
+		{
+			found = strtok_s(line, " \t\r", &token);
+		}
+
 		charToCompare = (char*)malloc(sizeof(char) * 3);
 		charToCompare[0] = found[1];
 		charToCompare[1] = '\0';
@@ -173,10 +187,32 @@ void CreateCommands(FILE* input)
 		if (strcmp(charToCompare, "R") == 0)
 		{
 			r2rParams = (R2RCommandParameters*)GetCommandParameters(Register2Register, found, &token);
+			code = GetInstructionCode(found);
 
-			
+			AddCommand(code, Register2Register, r2rParams->FirstRegister, r2rParams->SecondRegister, 0, 0, actualDisplacement);
+			actualDisplacement += 2;
+			continue;
 		}
 
+		charToCompare[0] = *found;
+		charToCompare[1] = '\0';
+		// jump command
+		if (strcmp(charToCompare, "J") == 0)
+		{
+			moParams = (MOCommandParameters*)GetCommandParameters(MemoryOnly, found, &token);
+
+			code = GetInstructionCode(found);
+
+			AddCommand(code, MemoryOnly, 0, 0, moParams->TargetRegister, moParams->TargetDisplacement, actualDisplacement);
+			actualDisplacement += 4;
+			continue;
+		}
+		
+		// register to memory command
+		r2mParams = (R2MCommandParameters*)GetCommandParameters(Register2Memory, found, &token);
+		code = GetInstructionCode(found);
+		AddCommand(code, Register2Memory, r2mParams->Register, 0, r2mParams->TargetRegister, r2mParams->TargetDisplacement, actualDisplacement);
+		actualDisplacement += 4;
 	}
 }
 
@@ -190,5 +226,42 @@ void LoadCommands(char* filename)
 	CreateProgramMemory(input);
 
 	CreateCommands(input);
+
+	fclose(input);
 }
 
+Command* GetCommand(int counter)
+{
+	return CompilerMemory.Commands[counter];
+}
+
+int GetCellValue(int number)
+{
+	return CompilerMemory.ProgramData[number]->Value;
+}
+
+int GetCommandNumberByDisplacement(int displacement)
+{
+	int i = 0; 
+
+	while (1)
+	{
+		if (GetCommand(i)->CommandDisplacement == displacement)
+		{
+			return i;
+		}
+		i++;
+	}
+}
+
+void SetCellValue(int number, int value)
+{
+	
+	CompilerMemory.ProgramData[number]->Value = value;
+	CompilerMemory.ProgramData[number]->IsActive = True;
+}
+
+MemoryCell* GetCell(int number)
+{
+	return CompilerMemory.ProgramData[number];
+}

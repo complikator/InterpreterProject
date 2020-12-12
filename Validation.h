@@ -11,4 +11,4 @@ void CheckIfFileIsPossibleToOpen(char*);
 // determine if given file is psa code file
 int IsPsaCodeFile(char*);
 
-Bool IsNumber(char)
+Bool IsNumber(char);

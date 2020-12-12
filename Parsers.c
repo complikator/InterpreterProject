@@ -7,6 +7,82 @@
 #include"Validation.h"
 #include"Labels.h"
 
+int GetInstructionCode(char* instr)
+{
+	if (strcmp(instr, "AR") == 0)
+	{
+		return AR;
+	}
+	if (strcmp(instr, "A") == 0)
+	{
+		return A;
+	}
+	if (strcmp(instr, "SR") == 0)
+	{
+		return SR;
+	}
+	if (strcmp(instr, "S") == 0)
+	{
+		return S;
+	}
+	if (strcmp(instr, "MR") == 0)
+	{
+		return MR;
+	}
+	if (strcmp(instr, "M") == 0)
+	{
+		return M;
+	}
+	if (strcmp(instr, "DR") == 0)
+	{
+		return DR;
+	}
+	if (strcmp(instr, "D") == 0)
+	{
+		return D;
+	}
+	if (strcmp(instr, "CR") == 0)
+	{
+		return CR;
+	}
+	if (strcmp(instr, "C") == 0)
+	{
+		return C;
+	}
+	if (strcmp(instr, "J") == 0)
+	{
+		return J;
+	}
+	if (strcmp(instr, "JZ") == 0)
+	{
+		return JZ;
+	}
+	if (strcmp(instr, "JP") == 0)
+	{
+		return JP;
+	}
+	if (strcmp(instr, "JN") == 0)
+	{
+		return JN;
+	}
+	if (strcmp(instr, "L") == 0)
+	{
+		return L;
+	}
+	if (strcmp(instr, "LR") == 0)
+	{
+		return LR;
+	}
+	if (strcmp(instr, "LA") == 0)
+	{
+		return LA;
+	}
+	if (strcmp(instr, "ST") == 0)
+	{
+		return ST;
+	}
+}
+
 int GetDSVariableAmount(char* preparsedCommand, char** token)
 {
 	char* result = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
@@ -114,12 +190,26 @@ void* GetCommandParameters(CommandType type, char* found, char** token)
 		r2mParams->Register = atoi(found);
 
 		found = strtok_s(NULL, "()", token);
-		r2mParams->TargetDisplacement = atoi(found);
-		found = strtok_s(NULL, "()", token);
-		r2mParams->TargetRegister = atoi(found);
-		return r2mParams;
+
+		if (IsNumber(*found) == True)
+		{
+			r2mParams->TargetDisplacement = atoi(found);
+			found = strtok_s(NULL, "()", token);
+			r2mParams->TargetRegister = atoi(found);
+			return r2mParams;
+		}
+		else
+		{
+			label = GetLabelByName(found);
+
+			r2mParams->TargetDisplacement = label->Displacement;
+			r2mParams->TargetRegister = label->Register;
+
+			return r2mParams;
+		}
 
 	case MemoryOnly:
+		moParams = (MOCommandParameters*)malloc(sizeof(MOCommandParameters));
 		if (IsNumber(*result) == False)
 		{
 			label = GetLabelByName(result);
@@ -131,9 +221,52 @@ void* GetCommandParameters(CommandType type, char* found, char** token)
 		}
 		found = strtok_s(result, "()", token);
 		moParams->TargetDisplacement = atoi(found);
-		found - strtok_s(NULL, "()", token);
+		found = strtok_s(NULL, "()", token);
 		moParams->TargetRegister = atoi(found);
 		return moParams;
 
 	}
+}
+
+char* ParseToHex(int value)
+{
+	char* result = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
+
+	sprintf_s(result, MAX_LINE_SIZE, "%08X", value);
+
+	return result;
+}
+
+char* ParseCommandToHex(Command* command)
+{
+	char* result = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
+	char* helper = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
+	*result = '\0';
+	sprintf_s(helper, MAX_LINE_SIZE, "%02X", command->Code);
+	strcat_s(result, MAX_LINE_SIZE, helper);
+
+	if (command->commandType == Register2Register)
+	{
+		sprintf_s(helper, MAX_LINE_SIZE, "%X", command->FirstRegister);
+		strcat_s(result, MAX_LINE_SIZE, helper);
+
+		sprintf_s(helper, MAX_LINE_SIZE, "%X", command->SecondRegister);
+		strcat_s(result, MAX_LINE_SIZE, helper);
+
+		return result;
+	}
+	else
+	{
+		sprintf_s(helper, MAX_LINE_SIZE, "%X", command->FirstRegister);
+		strcat_s(result, MAX_LINE_SIZE, helper);
+
+		sprintf_s(helper, MAX_LINE_SIZE, "%X", command->TargetRegister);
+		strcat_s(result, MAX_LINE_SIZE, helper);
+
+		sprintf_s(helper, MAX_LINE_SIZE, "%04X", command->TargetDisplacement);
+		strcat_s(result, MAX_LINE_SIZE, helper);
+
+		return result;
+	}
+
 }

@@ -23,7 +23,7 @@
 #define LR 0x31
 #define LA 0xf2
 #define ST 0xf3
-
+#define KILL 0xdd
 
 #define DC 0xF4
 #define DS 0xF5
