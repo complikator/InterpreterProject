@@ -25,3 +25,5 @@ int GetInstructionCode(char*);
 char* ParseToHex(int);
 
 char* ParseCommandToHex(Command*);
+
+Command* GetCommandFromHex(char*, int*);

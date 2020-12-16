@@ -8,3 +8,5 @@ Bool StringIsNullOrEmpty(char*);
 int LabelInCommandExist(char*);
 
 char* GenerateOutputPath(char*);
+
+char* DeleteWhitespaces(char*);

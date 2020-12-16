@@ -151,5 +151,12 @@ void CompilePsaCode(char* filename)
 	GenerateOutputFile(filename);
 }
 
-void CompileMachineCode(char* filename) {}
+void CompileMachineCode(char* filename) 
+{
+	LoadHexCommands(filename);
+
+	ExecuteCommands();
+
+	GenerateOutputFile(filename);
+}
 

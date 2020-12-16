@@ -24,3 +24,5 @@ int GetCommandNumberByDisplacement(int);
 void SetCellValue(int, int);
 
 MemoryCell* GetCell(int);
+
+void LoadHexCommands(char*);

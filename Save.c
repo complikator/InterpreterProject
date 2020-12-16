@@ -83,6 +83,12 @@ void SaveCommandSection(FILE* output)
 	for (i = 0; i < CompilerMemory.CommandsInfo->Total; ++i)
 	{
 		command = GetCommand(i);
+
+		if (command->Code == KILL)
+		{
+			continue;
+		}
+
 		line = ParseCommandToHex(command);
 		WriteCommandToFile(line, command->commandType, output);
 	}

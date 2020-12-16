@@ -7,6 +7,8 @@
 #include"Memory.h"
 #include"HelperStructs.h"
 #include"Labels.h"
+#include"Validation.h"
+#include<stdlib.h>
 
 void InitMemory()
 {
@@ -25,7 +27,7 @@ void InitMemory()
 
 void ResizeCompilerMemory(int capacity)
 {
-	MemoryCell** cells = realloc(CompilerMemory.ProgramData, sizeof(MemoryCell*)*capacity);
+	MemoryCell** cells = realloc(CompilerMemory.ProgramData, sizeof(MemoryCell*) * capacity);
 
 	if (cells)
 	{
@@ -44,18 +46,15 @@ MemoryCell* MakeMemoryCell(int value, Bool isActive)
 }
 
 void AddCellsToMemory(int amount, Bool isActive, int value)
-	{
+{
 	while (amount > 0)
 	{
 		if (CompilerMemory.DataSectionInfo->Capacity == CompilerMemory.DataSectionInfo->Total)
 		{
 			ResizeCompilerMemory(CompilerMemory.DataSectionInfo->Capacity * 2);
 		}
-		printf(">>\n%p\n", CompilerMemory.ProgramData[2]);
 
-		CompilerMemory.ProgramData[CompilerMemory.DataSectionInfo->Total] = MakeMemoryCell(value, isActive);
-		printf("%p\n", CompilerMemory.ProgramData[CompilerMemory.DataSectionInfo->Total]);
-		CompilerMemory.DataSectionInfo->Total++;
+		CompilerMemory.ProgramData[CompilerMemory.DataSectionInfo->Total++] = MakeMemoryCell(value, isActive);
 
 		amount--;
 	}
@@ -72,15 +71,12 @@ void CreateProgramMemory(FILE* input)
 
 	while (fgets(line, MAX_LINE_SIZE, input) != NULL)
 	{
-		
-			printf("\n%p\n", CompilerMemory.ProgramData[2]);
-		
-		DeleteCommentFromCommand(line);
-
 		if (StringIsNullOrEmpty(line) == True)
 		{
 			break;
 		}
+
+		DeleteCommentFromCommand(line);
 
 		if (LabelInCommandExist(line) == True)
 		{
@@ -123,7 +119,7 @@ Command* MakeCommand(int code, CommandType commandType, int firstRegister, int s
 
 void ResizeCommandsCollection(int capacity)
 {
-	Command** commands = realloc(CompilerMemory.Commands, sizeof(Command*)*capacity);
+	Command** commands = realloc(CompilerMemory.Commands, sizeof(Command*) * capacity);
 
 	if (commands)
 	{
@@ -207,7 +203,7 @@ void CreateCommands(FILE* input)
 			actualDisplacement += 4;
 			continue;
 		}
-		
+
 		// register to memory command
 		r2mParams = (R2MCommandParameters*)GetCommandParameters(Register2Memory, found, &token);
 		code = GetInstructionCode(found);
@@ -242,7 +238,7 @@ int GetCellValue(int number)
 
 int GetCommandNumberByDisplacement(int displacement)
 {
-	int i = 0; 
+	int i = 0;
 
 	while (1)
 	{
@@ -256,7 +252,7 @@ int GetCommandNumberByDisplacement(int displacement)
 
 void SetCellValue(int number, int value)
 {
-	
+
 	CompilerMemory.ProgramData[number]->Value = value;
 	CompilerMemory.ProgramData[number]->IsActive = True;
 }
@@ -264,4 +260,64 @@ void SetCellValue(int number, int value)
 MemoryCell* GetCell(int number)
 {
 	return CompilerMemory.ProgramData[number];
+}
+
+LoadProgramMemory(FILE* input)
+{
+	char* line = (char*)malloc(sizeof(char) * MAX_LABEL_SIZE);
+
+	while (fgets(line, MAX_LABEL_SIZE, input) != NULL)
+	{
+		if (StringIsNullOrEmpty(line) == True)
+		{
+			break;
+		}
+
+		DeleteCommentFromCommand(line);
+
+		if (IsNumber(*line) == True)
+		{
+			line = DeleteWhitespaces(line);
+			AddCellsToMemory(1, True, strtol(line, NULL, 16));
+		}
+		else
+		{
+			AddCellsToMemory(1, False, 0);
+		}
+	}
+}
+
+void LoadCommandsFromHex(FILE* input)
+{
+	char line[MAX_LINE_SIZE];
+	Command* command = NULL;
+	int displacement = 0;
+
+	while (fgets(line, MAX_LINE_SIZE, input) != NULL)
+	{
+		if (StringIsNullOrEmpty(line) == True)
+		{
+			break;
+		}
+
+		DeleteCommentFromCommand(line);
+
+		command = GetCommandFromHex(line, &displacement);
+
+		AddCommand(command->Code, command->commandType, command->FirstRegister, command->SecondRegister, command->TargetRegister, command->TargetDisplacement, command->CommandDisplacement);
+	}
+}
+
+void LoadHexCommands(char* filename)
+{
+	FILE* input;
+
+	InitMemory();
+	fopen_s(&input, filename, "r");
+
+	LoadProgramMemory(input);
+
+	LoadCommandsFromHex(input);
+
+	fclose(input);
 }

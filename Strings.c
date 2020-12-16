@@ -52,3 +52,23 @@ char* GenerateOutputPath(char* filename)
 	
 	return outputPath;
 }
+
+
+char* DeleteWhitespaces(char* string)
+{
+	char* found = NULL;
+	char* token = NULL;
+	char* result = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
+	*result = '\0';
+
+	found = strtok_s(string, " ", &token);
+
+	while (found != NULL)
+	{
+		strcat_s(result, MAX_LINE_SIZE, found);
+
+		found = strtok_s(NULL, " \n", &token);
+	}
+
+	return result;
+}

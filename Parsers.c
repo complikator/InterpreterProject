@@ -270,3 +270,42 @@ char* ParseCommandToHex(Command* command)
 	}
 
 }
+
+Command* GetCommandFromHex(char* string, int* displacement)
+{
+	char* found = NULL;
+	char* token = NULL;
+	Command* command = (Command*)malloc(sizeof(Command));
+	int helper;
+	char* result = (char*)malloc(sizeof(char) * MAX_LINE_SIZE);
+	*result = '\0';
+
+	found = strtok_s(string, " \n", &token);
+	command->Code = strtol(found, NULL, 16);
+
+	found = strtok_s(NULL, " \n", &token);
+	helper = strtol(found, NULL, 16);
+	command->FirstRegister = (helper>>4);
+	helper %= 16;
+	found = strtok_s(NULL, " \n", &token);
+
+	if (found == NULL)
+	{
+		command->SecondRegister = helper;
+		command->commandType = Register2Register;
+		*displacement += 2;
+		return command;
+	}
+	
+	command->TargetRegister = helper;
+	strcat_s(result, MAX_LINE_SIZE, found);
+	found = strtok_s(NULL, " \n", &token);
+	strcat_s(result, MAX_LINE_SIZE, found);
+
+	command->TargetDisplacement = strtol(result, NULL, 16);
+	command->CommandDisplacement = *displacement;
+
+	command->commandType = command->FirstRegister > 0 ? Register2Memory : MemoryOnly;
+	*displacement += 4;
+	return command;
+}
