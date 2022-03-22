@@ -1,3 +1,3 @@
 # InterpreterProject
-Projekt interpretera i kompilatora języka pseudoassemblera. 
-Dokumentacja języka dostępna tutaj: https://pseudoassembler.pl/src/
+Compiler of simple pseudoassembler code.
+Documentation of pseudoassembler language: https://pseudoassembler.pl/src/
